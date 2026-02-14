@@ -31,6 +31,8 @@ const markReceive = async (req, res) => {
   const id = req.params.id;
   try {
     await ShipModel.updateOne({ _id: id }, { status: "DELIVERING" });
+    const api = `http://34.92.192.47:5000/api/v1/admin/invoices/${foundShip.invoiceId}/status/delivering`;
+    await axios.patch(api);
     res.json({
       success: true,
       message: "Mark receive successfully",
