@@ -31,7 +31,7 @@ const markReceive = async (req, res) => {
   const id = req.params.id;
   try {
     await ShipModel.updateOne({ _id: id }, { status: "DELIVERING" });
-    const api = `http://34.92.192.47:5000/api/v1/admin/invoices/${foundShip.invoiceId}/status/delivering`;
+    const api = `http://103.161.16.77:5000/api/v1/admin/invoices/${foundShip.invoiceId}/status/delivering`;
     await axios.patch(api);
     res.json({
       success: true,
@@ -50,7 +50,7 @@ const markComplete = async (req, res) => {
     const id = req.params.id;
     await ShipModel.updateOne({ _id: id }, { status: "COMPLETED" });
     const foundShip = await ShipModel.findOne({ _id: id });
-    const api = `http://34.92.192.47:5000/api/v1/admin/invoices/${foundShip.invoiceId}/status/delivered`;
+    const api = `http://103.161.16.77:5000/api/v1/admin/invoices/${foundShip.invoiceId}/status/delivered`;
     await axios.patch(api);
     res.json({
       success: true,
