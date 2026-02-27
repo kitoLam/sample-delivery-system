@@ -29,15 +29,18 @@ const createShip = async (req, res) => {
 
 const markReceive = async (req, res) => {
   const id = req.params.id;
+  console.log(id);
   try {
-    await ShipModel.updateOne({ _id: id }, { status: "DELIVERING" });
+    const foundShip = await ShipModel.findOne({ _id: id });
     const api = `http://103.161.16.77:5000/api/v1/admin/invoices/${foundShip.invoiceId}/status/delivering`;
     await axios.patch(api);
+    await ShipModel.updateOne({ _id: id }, { status: "DELIVERING" });
     res.json({
       success: true,
       message: "Mark receive successfully",
     });
   } catch (error) {
+    console.log(error);
     res.status(500).json({
       success: false,
       message: "Mark receive error",
@@ -51,6 +54,7 @@ const markComplete = async (req, res) => {
     await ShipModel.updateOne({ _id: id }, { status: "COMPLETED" });
     const foundShip = await ShipModel.findOne({ _id: id });
     const api = `http://103.161.16.77:5000/api/v1/admin/invoices/${foundShip.invoiceId}/status/delivered`;
+    
     await axios.patch(api);
     res.json({
       success: true,
@@ -60,7 +64,7 @@ const markComplete = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Mark shipment as complete error",
-    })
+    });
   }
 };
 // const
