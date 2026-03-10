@@ -9,6 +9,7 @@ app.get('/', (req, res) => {res.json('ok')})
 app.post('/create-shipment', controller.createShip);
 app.post('/mark-receive/:id', controller.markReceive);
 app.post('/mark-complete/:id', controller.markComplete);
+app.post('/mark-fail/:id', controller.markFail);
 app.listen(3000, () => {
   connectDb()
   console.log('Server is running on port 3000');

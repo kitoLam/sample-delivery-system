@@ -31,7 +31,7 @@ const markReceive = async (req, res) => {
   const id = req.params.id;
   console.log(id);
   try {
-    const senderUrlMedia = req.body.senderUrlMedia;
+    const { senderUrlMedia } = req.body;
     if (!senderUrlMedia || senderUrlMedia.length === 0) {
       return res.status(400).json({
         success: false,
@@ -39,8 +39,13 @@ const markReceive = async (req, res) => {
       });
     }
     const foundShip = await ShipModel.findOne({ _id: id });
-    const api = `http://103.161.16.77:5000/api/v1/admin/invoices/${foundShip.invoiceId}/status/delivering`;
-    await axios.patch(api);
+    if(!foundShip){
+      return res.status(404).json({
+        success: false,
+        message: "Shipment not found",
+      });
+    }
+    await axios.patch(foundShip.receiveUrlCallback);
     await ShipModel.updateOne({ _id: id }, { status: "DELIVERING", senderUrlMedia: senderUrlMedia });
     res.json({
       success: true,
@@ -65,11 +70,25 @@ const markComplete = async (req, res) => {
       });
     }
     const id = req.params.id;
-    await ShipModel.updateOne({ _id: id }, { status: "COMPLETED", receiverUrlMedia: receiverUrlMedia });
     const foundShip = await ShipModel.findOne({ _id: id });
-    const api = `http://103.161.16.77:5000/api/v1/admin/invoices/${foundShip.invoiceId}/status/delivered`;
+    if (!foundShip) {
+      return res.status(404).json({
+        success: false,
+        message: "Shipment not found",
+      });
+    }
 
-    await axios.patch(api);
+    await ShipModel.updateOne({ _id: id }, { status: "COMPLETED", receiverUrlMedia: receiverUrlMedia });
+
+    // Call successUrlCallback if exists
+    if (foundShip.successUrlCallback) {
+      try {
+        await axios.patch(foundShip.successUrlCallback);
+      } catch (callbackError) {
+        console.log("Success callback error:", callbackError.message);
+      }
+    }
+
     res.json({
       success: true,
       message: "Complete shipment",
@@ -81,9 +100,53 @@ const markComplete = async (req, res) => {
     });
   }
 };
-// const
+
+const markFail = async (req, res) => {
+  try {
+    const receiverUrlMedia = req.body.receiverUrlMedia;
+    if (!receiverUrlMedia || receiverUrlMedia.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Please send at least 1 image url when marking order as failed",
+      });
+    }
+    const id = req.params.id;
+    const foundShip = await ShipModel.findOne({ _id: id });
+
+    // Chỉ cho phép mark fail nếu đang ở trạng thái DELIVERING
+    if (foundShip.status !== "DELIVERING") {
+      return res.status(400).json({
+        success: false,
+        message: "Can only mark fail when shipment is in DELIVERING status",
+      });
+    }
+
+    await ShipModel.updateOne({ _id: id }, { status: "FAILED", receiverUrlMedia: receiverUrlMedia });
+
+    // Call failUrlCallback if exists
+    if (foundShip.failUrlCallback) {
+      try {
+        await axios.patch(foundShip.failUrlCallback);
+      } catch (callbackError) {
+        console.log("Fail callback error:", callbackError.message);
+      }
+    }
+
+    res.json({
+      success: true,
+      message: "Mark shipment as failed successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Mark shipment as failed error",
+    });
+  }
+};
+
 module.exports = {
   createShip,
   markReceive,
   markComplete,
+  markFail,
 };

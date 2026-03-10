@@ -5,13 +5,16 @@ const shipSchema = new mongoose.Schema({
   shipAddress: { type: String, required: true },
   estimatedShipDate: { type: Date, default: null },
   shipCost: { type: Number, default: 10000 },
-  status: { type: String, default: "PENDING" }, // PENDING, DELIVERING, COMPLETED
+  status: { type: String, default: "PENDING" }, // PENDING, DELIVERING, COMPLETED, FAILED
   receiverUrlMedia: {
     type: [String]
   },
   senderUrlMedia: {
     type: [String]
   },
+  successUrlCallback: { type: String, required: true },
+  failUrlCallback: { type: String, required: true },
+  receiveUrlCallback: { type: String, required: true },
 }, {
   timestamps: true
 });
