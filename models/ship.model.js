@@ -6,8 +6,12 @@ const shipSchema = new mongoose.Schema({
   estimatedShipDate: { type: Date, default: null },
   shipCost: { type: Number, default: 10000 },
   status: { type: String, default: "PENDING" }, // PENDING, DELIVERING, COMPLETED
-  receiverUrlMedia: [],
-  senderUrlMedia: [],
+  receiverUrlMedia: {
+    type: [String]
+  },
+  senderUrlMedia: {
+    type: [String]
+  },
 }, {
   timestamps: true
 });
