@@ -144,9 +144,25 @@ const markFail = async (req, res) => {
   }
 };
 
+const getAllShips = async (req, res) => {
+  try {
+    const ships = await ShipModel.find().sort({ createdAt: -1 });
+    res.json({
+      success: true,
+      data: ships,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message || "Get shipments error",
+    });
+  }
+};
+
 module.exports = {
   createShip,
   markReceive,
   markComplete,
   markFail,
+  getAllShips,
 };
