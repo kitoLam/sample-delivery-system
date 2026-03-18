@@ -1,8 +1,17 @@
 const express = require('express');
+const cors = require('cors');
 require('dotenv').config();
 const { connectDb } = require('./config/db.config');
 const controller = require('./controllers/index.controller');
 const app = express();
+
+// CORS configuration - accept all domains
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.get('/', (req, res) => {res.json('ok')})
