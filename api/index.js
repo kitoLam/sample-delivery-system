@@ -1,15 +1,9 @@
 const express = require("express");
 // Không cần config dotenv ở đây nếu bạn đã nhập biến môi trường trên Vercel Dashboard
-<<<<<<< HEAD
 require('dotenv').config(); 
 const cors = require('cors');
 const { connectDb } = require('../config/db.config'); // Lưu ý đường dẫn nếu bạn cho vào thư mục api/
 const controller = require('../controllers/index.controller');
-=======
-require("dotenv").config();
-const { connectDb } = require("../config/db.config"); // Lưu ý đường dẫn nếu bạn cho vào thư mục api/
-const controller = require("../controllers/index.controller");
->>>>>>> 9a007085b7d8edfc14076b4b4017366f8ffcc315
 
 const app = express();
 // CORS configuration - accept all domains
