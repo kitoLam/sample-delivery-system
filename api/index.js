@@ -26,6 +26,8 @@ app.post("/mark-receive/:id", controller.markReceive);
 app.post("/mark-complete/:id", controller.markComplete);
 app.post("/mark-fail/:id", controller.markFail);
 app.get("/ships", controller.getAllShips);
+app.get('/ship-fee', controller.getShipFee);
+app.post('/ship-fee', controller.upsertShipFee);
 
 // QUAN TRỌNG 2: Xuất app để Vercel handler nhận diện
 module.exports = app;

@@ -1,5 +1,6 @@
 const { default: axios } = require("axios");
 const ShipModel = require("../models/ship.model");
+const ShipFeeModel = require("../models/shipFee.model");
 const moment = require("moment");
 
 const createShip = async (req, res) => {
@@ -159,10 +160,86 @@ const getAllShips = async (req, res) => {
   }
 };
 
+const GLOBAL_SHIP_FEE_KEY = {
+  province: "GLOBAL",
+  district: null,
+  ward: null,
+};
+
+const getShipFee = async (req, res) => {
+  try {
+    const feeConfig = await ShipFeeModel.findOne({
+      ...GLOBAL_SHIP_FEE_KEY,
+      isActive: true,
+    });
+
+    if (!feeConfig) {
+      return res.status(404).json({
+        success: false,
+        message: "Global ship fee config not found",
+      });
+    }
+
+    return res.json({
+      success: true,
+      data: {
+        shipFee: feeConfig.fee,
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Get ship fee error",
+    });
+  }
+};
+
+const upsertShipFee = async (req, res) => {
+  try {
+    const fee = Number(req.body?.fee);
+
+    if (Number.isNaN(fee) || fee < 0) {
+      return res.status(400).json({
+        success: false,
+        message: "fee must be a non-negative number",
+      });
+    }
+
+    const shipFeeConfig = await ShipFeeModel.findOneAndUpdate(
+      GLOBAL_SHIP_FEE_KEY,
+      {
+        fee,
+        isActive: req.body?.isActive ?? true,
+      },
+      {
+        upsert: true,
+        new: true,
+        setDefaultsOnInsert: true,
+      }
+    );
+
+    return res.json({
+      success: true,
+      message: "Update global ship fee successfully",
+      data: {
+        shipFee: shipFeeConfig.fee,
+        isActive: shipFeeConfig.isActive,
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Upsert ship fee error",
+    });
+  }
+};
+
 module.exports = {
   createShip,
   markReceive,
   markComplete,
   markFail,
   getAllShips,
+  getShipFee,
+  upsertShipFee,
 };
